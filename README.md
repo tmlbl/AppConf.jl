@@ -1,5 +1,6 @@
-AppConf.jl  [![Build Status](https://travis-ci.org/tmlbl/AppConf.jl.svg?branch=master)](https://travis-ci.org/tmlbl/AppConf.jl)
+AppConf.jl
 ==========
+[![Build Status](https://travis-ci.org/tmlbl/AppConf.jl.svg?branch=master)](https://travis-ci.org/tmlbl/AppConf.jl)
 
 A simple configuration module for Julia applications. Implements a basic syntax
 for a configuration file, and manages an environment variable `JULIA_ENV` to
