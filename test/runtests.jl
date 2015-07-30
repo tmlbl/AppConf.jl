@@ -14,5 +14,6 @@ parseconf("sample.conf")
 @test conf["baz.dot"] == "bar"
 @test conf["num"] == 34
 @test conf["bool"] == false
+@test conf["pi"] == 3.14
 
 @show conf

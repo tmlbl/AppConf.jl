@@ -43,6 +43,16 @@ function stripcomments(ln::String)
   ret
 end
 
+function isnumeric(str::String)
+  is = true
+  for c in str
+    if c != '.' && !isdigit(c)
+      is = false
+    end
+  end
+  is
+end
+
 function parseconf(file::String)
   f = open(file)
   inquotes = false
@@ -54,7 +64,7 @@ function parseconf(file::String)
     end
     key = ln[1:ix - 1]
     val = strip(chomp(ln[ix + 1:end]))
-    if isnumber(val) || val == "true" || val == "false"
+    if isnumeric(val) || val == "true" || val == "false"
       conf[key] = parse(val)
     else
       conf[key] = strip(val, '"')
