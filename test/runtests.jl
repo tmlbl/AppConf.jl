@@ -10,7 +10,7 @@ parseconf("sample.conf")
 @prod x = "prod"
 @test x == "prod"
 
-@test conf["test.param"] == "foo"
+@test conf["test.param"] == "foo=bar"
 @test conf["baz.dot"] == "bar"
 @test conf["num"] == 34
 @test conf["bool"] == false
