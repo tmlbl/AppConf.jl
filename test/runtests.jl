@@ -15,5 +15,6 @@ parseconf("sample.conf")
 @test conf["num"] == 34
 @test conf["bool"] == false
 @test conf["pi"] == 3.14
+@test conf["ip"] == "192.168.31.12"
 
 @show conf

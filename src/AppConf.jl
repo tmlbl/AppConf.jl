@@ -45,10 +45,17 @@ end
 
 function isnumeric(str::String)
   is = true
+  dots = 0
   for c in str
+    if c == '.'
+      dots += 1
+    end
     if c != '.' && !isdigit(c)
       is = false
     end
+  end
+  if dots > 1
+    is = false
   end
   is
 end
