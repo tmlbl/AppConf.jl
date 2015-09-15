@@ -43,10 +43,17 @@ function stripcomments(ln::String)
   ret
 end
 
+# cleanstring(str::String) = strip(strip(string), '"')
+
+function cleanstring(str::String)
+  s = strip(str)
+  strip(s, '"')
+end
+
 function isnumeric(str::String)
   is = true
   dots = 0
-  for c in str
+  for c in cleanstring(str)
     if c == '.'
       dots += 1
     end
@@ -59,6 +66,11 @@ function isnumeric(str::String)
   end
   is
 end
+
+islist(str::String) = str[1] == '[' && str[length(str)] == ']'
+
+parselist(str::String) = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
+    split(match(r"\[(.*)\]", str).captures[1], ","))
 
 function parseconf(file::String)
   f = open(file)
@@ -73,8 +85,10 @@ function parseconf(file::String)
     val = strip(chomp(ln[ix + 1:end]))
     if isnumeric(val) || val == "true" || val == "false"
       conf[key] = parse(val)
+    elseif islist(val)
+      conf[key] = parselist(val)
     else
-      conf[key] = strip(val, '"')
+      conf[key] = cleanstring(val)
     end
     if key == "env"
       ENV["JULIA_ENV"] = strip(val, '"')

@@ -37,6 +37,22 @@ Dict{AbstractString,Any} with 4 entries:
   "session.timeout" => 60
 ```
 
+## Supported Values
+
+Values will be interpreted as strings or numbers based on their structure.
+Strings can optionally be in double quotes. Arrays are also supported with the
+following syntax:
+
+```
+arr=["one", 2, three]
+```
+
+Is parsed into:
+
+```julia
+Dict{AbstractString,Any}("arr" => Any["one",2,"three"])
+```
+
 ## Using JULIA_ENV
 
 The variable `JULIA_ENV` is set to `"dev"` by default. It can be overridden by

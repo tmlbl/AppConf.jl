@@ -17,4 +17,14 @@ parseconf("sample.conf")
 @test conf["pi"] == 3.14
 @test conf["ip"] == "192.168.31.12"
 
+@show conf["arr"]
+@test length(conf["arr"]) == 4
+@test conf["arr"][1] == "foo"
+@test conf["arr"][2] == "bar"
+@test conf["arr"][4] == 7
+
+@test conf["vals"][1] == "one"
+@test conf["vals"][2] == 2
+@test conf["vals"][3] == "three"
+
 @show conf
