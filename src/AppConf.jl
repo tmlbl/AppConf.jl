@@ -21,9 +21,7 @@ macro prod(e)
   end
 end
 
-conf = Dict{String,Any}()
-
-function findeq(ln::String)
+function findeq(ln::AbstractString)
   for i = 1:length(ln)
     if ln[i] == '='
       return i
@@ -32,7 +30,7 @@ function findeq(ln::String)
   return -1
 end
 
-function stripcomments(ln::String)
+function stripcomments(ln::AbstractString)
   ret = ""
   for c in ln
     if c == '#'
@@ -45,12 +43,12 @@ end
 
 # cleanstring(str::String) = strip(strip(string), '"')
 
-function cleanstring(str::String)
+function cleanstring(str::AbstractString)
   s = strip(str)
   strip(s, '"')
 end
 
-function isnumeric(str::String)
+function isnumeric(str::AbstractString)
   is = true
   dots = 0
   for c in cleanstring(str)
@@ -67,26 +65,42 @@ function isnumeric(str::String)
   is
 end
 
-islist(str::String) = str[1] == '[' && str[length(str)] == ']'
+islist(str::AbstractString) = str[1] == '[' && str[length(str)] == ']'
 
-parselist(str::String) = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
+parselist(str::AbstractString) = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
     split(match(r"\[(.*)\]", str).captures[1], ","))
 
-function parseconf(file::String)
+function parseconf(file::AbstractString)
   f = open(file)
   inquotes = false
+  conf = Dict{AbstractString, Any}()
   while !eof(f)
     ln = stripcomments(readline(f))
     ix = findeq(ln)
     if ix == -1
       continue
     end
-    key = ln[1:ix - 1]
+    key = strip(ln[1:ix - 1])
     val = strip(chomp(ln[ix + 1:end]))
     if isnumeric(val) || val == "true" || val == "false"
       conf[key] = parse(val)
+    # Handle single-line lists
     elseif islist(val)
       conf[key] = parselist(val)
+    # Parse multi-line lists
+    elseif val[1] == '['
+      # Base case: first line
+      curLn = val
+      s = IOBuffer()
+      while length(curLn) == 0 || curLn[end] != ']'
+        println(s, curLn)
+        eof(f) && (error("Unexpected end of input: ", curLn))
+        curLn = strip(readline(f))
+      end
+      println(s, curLn)
+      lst = takebuf_string(s)
+      # parse and eval may not be performance optimal.
+      conf[key] = eval(parse(lst))
     else
       conf[key] = cleanstring(val)
     end
@@ -94,6 +108,8 @@ function parseconf(file::String)
       ENV["JULIA_ENV"] = strip(val, '"')
     end
   end
+  global conf = conf
+  conf
 end
 
 end # module

@@ -26,5 +26,6 @@ parseconf("sample.conf")
 @test conf["vals"][1] == "one"
 @test conf["vals"][2] == 2
 @test conf["vals"][3] == "three"
+@test conf["white.space"] == ["Hi", 42, "Hello", 111]
 
 @show conf
