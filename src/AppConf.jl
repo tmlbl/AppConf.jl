@@ -1,4 +1,5 @@
 module AppConf
+using Compat
 
 export @dev,
        @prod,
