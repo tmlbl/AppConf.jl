@@ -1,4 +1,7 @@
+__precompile__(true)
+
 module AppConf
+
 using Compat
 
 export @dev,
@@ -6,8 +9,10 @@ export @dev,
        conf,
        parseconf
 
-if !haskey(ENV, "JULIA_ENV")
-  ENV["JULIA_ENV"] = "dev"
+function __init__()
+  if !haskey(ENV, "JULIA_ENV")
+    ENV["JULIA_ENV"] = "dev"
+  end
 end
 
 macro dev(e)
@@ -42,7 +47,14 @@ function stripcomments(ln::AbstractString)
   ret
 end
 
-# cleanstring(str::String) = strip(strip(string), '"')
+function evalEnv(ln::AbstractString)
+  nln = ln
+  for v in matchall(r"\$[A-Z|_|-]+", ln)
+    vname = replace(v, "\$", "")
+    nln = replace(nln, v, ENV[vname])
+  end
+  nln
+end
 
 function cleanstring(str::AbstractString)
   s = strip(str)
@@ -76,7 +88,7 @@ function parseconf(file::AbstractString)
   inquotes = false
   conf = Dict{AbstractString, Any}()
   while !eof(f)
-    ln = stripcomments(readline(f))
+    ln = evalEnv(stripcomments(readline(f)))
     ix = findeq(ln)
     if ix == -1
       continue

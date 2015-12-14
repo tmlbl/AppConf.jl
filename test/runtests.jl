@@ -4,6 +4,8 @@ using AppConf, Base.Test
 @prod x = "prod"
 @test x == "dev"
 
+ENV["VAR"] = "foo"
+
 parseconf("sample.conf")
 
 @dev x = "dev"
@@ -17,7 +19,6 @@ parseconf("sample.conf")
 @test conf["pi"] == 3.14
 @test conf["ip"] == "192.168.31.12"
 
-@show conf["arr"]
 @test length(conf["arr"]) == 4
 @test conf["arr"][1] == "foo"
 @test conf["arr"][2] == "bar"
@@ -28,4 +29,4 @@ parseconf("sample.conf")
 @test conf["vals"][3] == "three"
 @test conf["white.space"] == ["Hi", 42, "Hello", 111]
 
-@show conf
+@test conf["var"] == "foo/bar"
