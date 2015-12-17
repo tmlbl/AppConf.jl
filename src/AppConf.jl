@@ -1,4 +1,4 @@
-__precompile__(true)
+isdefined(Base, :__precompile__) && __precompile__(true)
 
 module AppConf
 
