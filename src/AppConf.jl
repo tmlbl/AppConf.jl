@@ -84,6 +84,17 @@ parselist(str::AbstractString) = map((x) -> isnumeric(x) ? parse(x) : cleanstrin
     split(match(r"\[(.*)\]", str).captures[1], ","))
 
 function parseconf(file::AbstractString)
+  file = abspath(file)
+  tpath = abspath("$file.template")
+  if !isfile(file)
+    if isfile(tpath)
+      warn("No file found at $file, using template at $tpath")
+      file = tpath
+    else
+      error("No file found at $file")
+    end
+  end
+
   f = open(file)
   inquotes = false
   conf = Dict{AbstractString, Any}()

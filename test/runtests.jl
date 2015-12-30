@@ -30,3 +30,7 @@ parseconf("sample.conf")
 @test conf["white.space"] == ["Hi", 42, "Hello", 111]
 
 @test conf["var"] == "foo/bar"
+
+@test parseconf("foo.conf")["template"] == true
+
+@test_throws ErrorException parseconf("bar.conf")
