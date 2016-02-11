@@ -28,12 +28,13 @@ macro prod(e)
 end
 
 function findeq(ln::AbstractString)
-  for i = 1:length(ln)
-    if ln[i] == '='
-      return i
+    for i = 1:length(ln)
+        c = chr2ind(ln, i);
+        if ln[c] == '='
+            return c
+        end
     end
-  end
-  return -1
+    return -1
 end
 
 function stripcomments(ln::AbstractString)
