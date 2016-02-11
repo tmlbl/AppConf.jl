@@ -30,6 +30,9 @@ parseconf("sample.conf")
 @test conf["white.space"] == ["Hi", 42, "Hello", 111]
 
 @test conf["var"] == "foo/bar"
+@test conf["ρ"] == 4
+@test conf["γ"] == 1.667
+@test conf["V₁"] == 3
 
 @test parseconf("foo.conf")["template"] == true
 
