@@ -80,9 +80,16 @@ function isnumeric(str::AbstractString)
 end
 
 islist(str::AbstractString) = str[1] == '[' && str[length(str)] == ']'
+istuple(str::AbstractString) = str[1] == '(' && str[length(str)] == ')'
 
 parselist(str::AbstractString) = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
     split(match(r"\[(.*)\]", str).captures[1], ","))
+
+function parsetuple(str::AbstractString)
+    res = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
+        split(match(r"\((.*)\)", str).captures[1], ","))
+    return ntuple((i) -> res[i], length(res))
+end
 
 function parseconf(file::AbstractString)
   file = abspath(file)
@@ -114,6 +121,9 @@ function parseconf(file::AbstractString)
     # Handle single-line lists
     elseif islist(val)
       conf[key] = parselist(val)
+    # Handle single-line lists
+    elseif istuple(val)
+      conf[key] = parsetuple(val)
     # Parse multi-line lists
     elseif val[1] == '['
       # Base case: first line
