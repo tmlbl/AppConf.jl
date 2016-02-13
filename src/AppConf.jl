@@ -98,7 +98,9 @@ function parseconf(file::AbstractString)
 
   f = open(file)
   inquotes = false
-  conf = Dict{AbstractString, Any}()
+    if !isdefined(:conf)
+        conf = Dict{AbstractString, Any}()
+    end
   while !eof(f)
     ln = evalEnv(stripcomments(readline(f)))
     ix = findeq(ln)
