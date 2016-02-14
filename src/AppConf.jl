@@ -28,12 +28,13 @@ macro prod(e)
 end
 
 function findeq(ln::AbstractString)
-  for i = 1:length(ln)
-    if ln[i] == '='
-      return i
+    for i = 1:length(ln)
+        c = chr2ind(ln, i);
+        if ln[c] == '='
+            return c
+        end
     end
-  end
-  return -1
+    return -1
 end
 
 function stripcomments(ln::AbstractString)
@@ -79,9 +80,16 @@ function isnumeric(str::AbstractString)
 end
 
 islist(str::AbstractString) = str[1] == '[' && str[length(str)] == ']'
+istuple(str::AbstractString) = str[1] == '(' && str[length(str)] == ')'
 
 parselist(str::AbstractString) = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
     split(match(r"\[(.*)\]", str).captures[1], ","))
+
+function parsetuple(str::AbstractString)
+    res = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
+        split(match(r"\((.*)\)", str).captures[1], ","))
+    return ntuple((i) -> res[i], length(res))
+end
 
 function parseconf(file::AbstractString)
   file = abspath(file)
@@ -97,7 +105,9 @@ function parseconf(file::AbstractString)
 
   f = open(file)
   inquotes = false
-  conf = Dict{AbstractString, Any}()
+    if !isdefined(:conf)
+        conf = Dict{AbstractString, Any}()
+    end
   while !eof(f)
     ln = evalEnv(stripcomments(readline(f)))
     ix = findeq(ln)
@@ -111,6 +121,9 @@ function parseconf(file::AbstractString)
     # Handle single-line lists
     elseif islist(val)
       conf[key] = parselist(val)
+    # Handle single-line lists
+    elseif istuple(val)
+      conf[key] = parsetuple(val)
     # Parse multi-line lists
     elseif val[1] == '['
       # Base case: first line

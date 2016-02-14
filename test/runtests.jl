@@ -27,9 +27,18 @@ parseconf("sample.conf")
 @test conf["vals"][1] == "one"
 @test conf["vals"][2] == 2
 @test conf["vals"][3] == "three"
+
+#tuples
+@test conf["tvals"][1] == "one"
+@test conf["tvals"][2] == 2
+@test conf["tvals"][3] == "three"
+
 @test conf["white.space"] == ["Hi", 42, "Hello", 111]
 
 @test conf["var"] == "foo/bar"
+@test conf["ρ"] == 4
+@test conf["γ"] == 1.667
+@test conf["V₁"] == 3
 
 @test parseconf("foo.conf")["template"] == true
 
