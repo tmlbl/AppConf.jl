@@ -68,3 +68,7 @@ end
   println("I'm on your server")
 end
 ```
+
+## TODO
+
+Support full [HOCON](http://getakka.net/docs/concepts/hocon) syntax to emulate TypeSafe config library.
