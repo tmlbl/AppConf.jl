@@ -28,13 +28,12 @@ macro prod(e)
 end
 
 function findeq(ln::AbstractString)
-    for i = 1:length(ln)
-        c = chr2ind(ln, i);
-        if ln[c] == '='
-            return c
-        end
-    end
-    return -1
+  for c in eachindex(ln)
+      if ln[c] == '='
+          return c
+      end
+  end
+  return -1
 end
 
 function stripcomments(ln::AbstractString)
@@ -50,9 +49,10 @@ end
 
 function evalEnv(ln::AbstractString)
   nln = ln
-  for v in matchall(r"\$[A-Z|_|-]+", ln)
-    vname = replace(v, "\$", "")
-    nln = replace(nln, v, ENV[vname])
+  for m in eachmatch(r"\$[A-Z|_|-]+", ln)
+    v = m.match
+    vname = replace(v, "\$" => "")
+    nln = replace(nln, v => ENV[vname])
   end
   nln
 end
@@ -82,11 +82,11 @@ end
 islist(str::AbstractString) = str[1] == '[' && str[length(str)] == ']'
 istuple(str::AbstractString) = str[1] == '(' && str[length(str)] == ')'
 
-parselist(str::AbstractString) = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
+parselist(str::AbstractString) = map((x) -> isnumeric(x) ? parse(Float64, x) : cleanstring(x),
     split(match(r"\[(.*)\]", str).captures[1], ","))
 
 function parsetuple(str::AbstractString)
-    res = map((x) -> isnumeric(x) ? parse(x) : cleanstring(x),
+    res = map((x) -> isnumeric(x) ? parse(Float64, x) : cleanstring(x),
         split(match(r"\((.*)\)", str).captures[1], ","))
     return ntuple((i) -> res[i], length(res))
 end
@@ -96,16 +96,16 @@ function parseconf(file::AbstractString)
   tpath = abspath("$file.template")
   if !isfile(file)
     if isfile(tpath)
-      warn("No file found at $file, using template at $tpath")
+      @warn "No file found, using template" file_path=file temp_file_path = tpath
       file = tpath
     else
-      error("No file found at $file")
+      @error "No file found" file_path=file
     end
   end
 
   f = open(file)
   inquotes = false
-    if !isdefined(:conf)
+    if !isdefined(AppConf, :conf)
         conf = Dict{AbstractString, Any}()
     end
   while !eof(f)
@@ -114,10 +114,12 @@ function parseconf(file::AbstractString)
     if ix == -1
       continue
     end
-    key = strip(ln[1:ix - 1])
-    val = strip(chomp(ln[ix + 1:end]))
-    if isnumeric(val) || val == "true" || val == "false"
-      conf[key] = parse(val)
+    key = strip(ln[1:prevind(ln, ix)])
+    val = strip(chomp(ln[nextind(ln, ix):end]))
+    if isnumeric(val)
+      conf[key] = parse(Float64, val)
+    elseif val == "true" || val == "false"
+      conf[key] = parse(Bool, val)
     # Handle single-line lists
     elseif islist(val)
       conf[key] = parselist(val)
@@ -135,9 +137,9 @@ function parseconf(file::AbstractString)
         curLn = strip(readline(f))
       end
       println(s, curLn)
-      lst = takebuf_string(s)
+      lst = String(take!(s))
       # parse and eval may not be performance optimal.
-      conf[key] = eval(parse(lst))
+      conf[key] = eval(Meta.parse(lst))
     else
       conf[key] = cleanstring(val)
     end
