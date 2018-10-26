@@ -1,4 +1,4 @@
-using AppConf, Base.Test
+using AppConf, Test
 
 @dev x = "dev"
 @prod x = "prod"
@@ -42,4 +42,4 @@ parseconf("sample.conf")
 
 @test parseconf("foo.conf")["template"] == true
 
-@test_throws ErrorException parseconf("bar.conf")
+@test_throws SystemError parseconf("bar.conf")
